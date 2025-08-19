@@ -26,14 +26,14 @@ button:hover {background:#357ab7;}
 </div>
 
 <script>
-// 근육 목록
+// Muscles
 const muscles = [
   "Gluteus Maximus", "Gluteus Medius", "Gluteus Minimus",
   "Piriformis", "Superior Gemellus", "Obturator Internus",
   "Inferior Gemellus", "Quadratus Femoris"
 ];
 
-// 옵션 풀
+// Option pools
 const originPool = [
   "Ilium, sacrum, coccyx, sacrotuberous ligament",
   "Anterior and Posterior gluteal lines (Ilium)",
@@ -43,14 +43,12 @@ const originPool = [
   "Ischiopubic ramus, Obturator membrane",
   "Anterior surface of sacrum"
 ];
-
 const insertionPool = [
   "Greater trochanter",
   "Gluteal tuberosity, iliotibial tract (IT Band)",
   "Intertrochanteric crest",
   "Greater trochanter (via obturator internus tendon)"
 ];
-
 const actionPool = [
   "Hip ER, EXT",
   "Hip IR, ABD + Hip stabilization",
@@ -60,7 +58,6 @@ const actionPool = [
   "Hip FLEX",
   "Hip ADD"
 ];
-
 const nervePool = [
   "Inferior gluteal n. (VR L5-S2)",
   "Superior gluteal n. (VR L4-S1)",
@@ -68,7 +65,6 @@ const nervePool = [
   "n. to superior gemellus and obturator internus mm. (VR L5-S2)",
   "n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)"
 ];
-
 const perfusionPool = [
   "Superior and Inferior gluteal aa/vv",
   "Superior gluteal aa/vv",
@@ -77,7 +73,7 @@ const perfusionPool = [
   "Femoral aa/vv"
 ];
 
-// 문제 데이터
+// Quiz data
 const quizData = [
   {muscle:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"Inferior gluteal n. (VR L5-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
   {muscle:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
@@ -91,33 +87,27 @@ const quizData = [
 
 let currentIndex = 0;
 let score = 0;
-
-// 문제 순서 섞기
 shuffleArray(quizData);
 loadQuestion();
 
-// 문제 로드
 function loadQuestion(){
   const q = quizData[currentIndex];
   const attributes = ["origin","insertion","action","nerve","perfusion"];
   const chosenAttr = attributes[Math.floor(Math.random()*attributes.length)];
 
-  const reverse = Math.random()<0.5; // 50% chance muscle→attribute, 50% attribute→muscle
+  const reverse = Math.random()<0.5;
   let questionText;
   let correctAnswer;
   let optionsPool;
 
   if(!reverse){
-    // muscle → attribute
-    questionText = `${q.muscle}의 ${capitalize(chosenAttr)}은?`;
+    questionText = `${q.muscle}'s ${capitalize(chosenAttr)}?`;
     correctAnswer = q[chosenAttr];
   } else {
-    // attribute → muscle
-    questionText = `${capitalize(chosenAttr)}가 '${q[chosenAttr]}'인 근육은?`;
+    questionText = `Which muscle has ${capitalize(chosenAttr)} '${q[chosenAttr]}'?`;
     correctAnswer = q.muscle;
   }
 
-  // 옵션 선택
   switch(chosenAttr){
     case "origin": optionsPool = originPool; break;
     case "insertion": optionsPool = insertionPool; break;
@@ -128,15 +118,14 @@ function loadQuestion(){
 
   let opts = [correctAnswer];
   if(reverse){
-    // 근육 문제일 땐 근육 풀에서 선택
     while(opts.length < 4){
       const randOpt = muscles[Math.floor(Math.random()*muscles.length)];
-      if(!opts.includes(randOpt)) opts.push(randOpt);
+      if(!opts.includes(randOpt) && randOpt!==correctAnswer) opts.push(randOpt);
     }
   } else {
-    // attribute 문제일 땐 attribute 풀에서 선택
+    const pool = optionsPool.filter(val=>val!==correctAnswer);
     while(opts.length < 4){
-      const randOpt = optionsPool[Math.floor(Math.random()*optionsPool.length)];
+      const randOpt = pool[Math.floor(Math.random()*pool.length)];
       if(!opts.includes(randOpt)) opts.push(randOpt);
     }
   }
@@ -146,7 +135,6 @@ function loadQuestion(){
   document.getElementById("question").innerText = questionText;
   const optionsDiv = document.getElementById("options");
   optionsDiv.innerHTML = "";
-
   opts.forEach(opt=>{
     const div = document.createElement("div");
     div.className="option";
@@ -154,11 +142,9 @@ function loadQuestion(){
     div.onclick = ()=>selectOption(div, correctAnswer);
     optionsDiv.appendChild(div);
   });
-
-  document.getElementById("feedback").innerText = "";
+  document.getElementById("feedback").innerText="";
 }
 
-// 선택 처리
 function selectOption(element, correctAnswer){
   const options = document.querySelectorAll(".option");
   options.forEach(opt=>opt.onclick=null);
@@ -174,7 +160,6 @@ function selectOption(element, correctAnswer){
   document.getElementById("score").innerText = score;
 }
 
-// 다음 문제
 function nextQuestion(){
   currentIndex++;
   if(currentIndex>=quizData.length){
@@ -184,9 +169,8 @@ function nextQuestion(){
   } else loadQuestion();
 }
 
-// 유틸
 function shuffleArray(array){return array.sort(()=>Math.random()-0.5);}
-function capitalize(str){return str.charAt(0).toUpperCase() + str.slice(1);}
+function capitalize(str){return str.charAt(0).toUpperCase()+str.slice(1);}
 </script>
 </body>
 </html>
