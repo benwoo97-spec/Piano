@@ -26,82 +26,142 @@ button:hover {background:#357ab7;}
 </div>
 
 <script>
-// 전체 Gluteal Region quiz data
+// 근육 목록
+const muscles = [
+  "Gluteus Maximus", "Gluteus Medius", "Gluteus Minimus",
+  "Piriformis", "Superior Gemellus", "Obturator Internus",
+  "Inferior Gemellus", "Quadratus Femoris"
+];
+
+// 옵션 풀
+const originPool = [
+  "Ilium, sacrum, coccyx, sacrotuberous ligament",
+  "Anterior and Posterior gluteal lines (Ilium)",
+  "Anterior and Inferior gluteal lines (Ilium)",
+  "Ischial spine",
+  "Ischial tuberosity",
+  "Ischiopubic ramus, Obturator membrane",
+  "Anterior surface of sacrum"
+];
+
+const insertionPool = [
+  "Greater trochanter",
+  "Gluteal tuberosity, iliotibial tract (IT Band)",
+  "Intertrochanteric crest",
+  "Greater trochanter (via obturator internus tendon)"
+];
+
+const actionPool = [
+  "Hip ER, EXT",
+  "Hip IR, ABD + Hip stabilization",
+  "Hip IR, ABD",
+  "Hip ER, ABD",
+  "Hip ER",
+  "Hip FLEX",
+  "Hip ADD"
+];
+
+const nervePool = [
+  "Inferior gluteal n. (VR L5-S2)",
+  "Superior gluteal n. (VR L4-S1)",
+  "n. to piriformis mm. (VR S1-S2)",
+  "n. to superior gemellus and obturator internus mm. (VR L5-S2)",
+  "n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)"
+];
+
+const perfusionPool = [
+  "Superior and Inferior gluteal aa/vv",
+  "Superior gluteal aa/vv",
+  "Inferior Gluteal aa/vv",
+  "Obturator aa/vv",
+  "Femoral aa/vv"
+];
+
+// 문제 데이터
 const quizData = [
-  {question:"Origin of Gluteus Maximus?", correct:"Ilium, sacrum, coccyx, sacrotuberous ligament", options:["Ilium, sacrum, coccyx, sacrotuberous ligament","Anterior gluteal line","Ischial tuberosity","Anterior surface of sacrum"]},
-  {question:"Insertion of Gluteus Maximus?", correct:"Gluteal tuberosity, iliotibial tract (IT Band)", options:["Gluteal tuberosity, iliotibial tract (IT Band)","Greater trochanter","Intertrochanteric crest","Obturator membrane"]},
-  {question:"Action of Gluteus Maximus?", correct:"Hip ER, EXT", options:["Hip ER, EXT","Hip IR, ABD","Hip FLEX","Hip ADD"]},
-  {question:"Nerve supply of Gluteus Maximus?", correct:"Inferior gluteal n. (VR L5-S2)", options:["Inferior gluteal n. (VR L5-S2)","Superior gluteal n. (L4-S1)","n. to piriformis (S1-S2)","n. to quadratus femoris (L4-S1)"]},
-  {question:"Perfusion of Gluteus Maximus?", correct:"Superior and Inferior gluteal aa/vv", options:["Superior and Inferior gluteal aa/vv","Obturator aa/vv","Femoral aa/vv","Superior gluteal aa/vv"]},
-
-  {question:"Origin of Gluteus Medius?", correct:"Anterior and Posterior gluteal lines (Ilium)", options:["Anterior and Posterior gluteal lines (Ilium)","Ischial tuberosity","Sacrotuberous ligament","Ilium crest"]},
-  {question:"Insertion of Gluteus Medius?", correct:"Greater trochanter", options:["Greater trochanter","Gluteal tuberosity","IT band","Intertrochanteric crest"]},
-  {question:"Action of Gluteus Medius?", correct:"Hip IR, ABD + Hip stabilization", options:["Hip IR, ABD + Hip stabilization","Hip ER","Hip EXT","Hip ADD"]},
-  {question:"Nerve supply of Gluteus Medius?", correct:"Superior gluteal n. (VR L4-S1)", options:["Superior gluteal n. (VR L4-S1)","Inferior gluteal n. (L5-S2)","n. to piriformis (S1-S2)","n. to quadratus femoris (L4-S1)"]},
-  {question:"Perfusion of Gluteus Medius?", correct:"Superior gluteal aa/vv", options:["Superior gluteal aa/vv","Inferior gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]},
-
-  {question:"Origin of Gluteus Minimus?", correct:"Anterior and Inferior gluteal lines (Ilium)", options:["Anterior and Inferior gluteal lines (Ilium)","Posterior gluteal line","Ischial tuberosity","Sacrotuberous ligament"]},
-  {question:"Insertion of Gluteus Minimus?", correct:"Greater trochanter", options:["Greater trochanter","Gluteal tuberosity","IT band","Intertrochanteric crest"]},
-  {question:"Action of Gluteus Minimus?", correct:"Hip IR, ABD + Hip stabilization", options:["Hip IR, ABD + Hip stabilization","Hip ER","Hip EXT","Hip ADD"]},
-  {question:"Nerve supply of Gluteus Minimus?", correct:"Superior gluteal n. (VR L4-S1)", options:["Superior gluteal n. (VR L4-S1)","Inferior gluteal n. (L5-S2)","n. to piriformis (S1-S2)","n. to quadratus femoris (L4-S1)"]},
-  {question:"Perfusion of Gluteus Minimus?", correct:"Superior gluteal aa/vv", options:["Superior gluteal aa/vv","Inferior gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]},
-
-  {question:"Origin of Piriformis?", correct:"Anterior surface of sacrum, Sacrotuberous ligament", options:["Anterior surface of sacrum, Sacrotuberous ligament","Ischial spine","Ischial tuberosity","Anterior gluteal line"]},
-  {question:"Insertion of Piriformis?", correct:"Greater trochanter (upper end)", options:["Greater trochanter (upper end)","Intertrochanteric crest","IT band","Obturator membrane"]},
-  {question:"Action of Piriformis?", correct:"Hip ER", options:["Hip ER","Hip IR","Hip ABD","Hip EXT"]},
-  {question:"Nerve supply of Piriformis?", correct:"n. to piriformis mm. (VR S1-S2)", options:["n. to piriformis mm. (VR S1-S2)","Superior gluteal n. (L4-S1)","Inferior gluteal n. (L5-S2)","n. to quadratus femoris (L4-S1)"]},
-  {question:"Perfusion of Piriformis?", correct:"Superior and Inferior gluteal aa/vv", options:["Superior and Inferior gluteal aa/vv","Obturator aa/vv","Femoral aa/vv","Superior gluteal aa/vv"]},
-
-  {question:"Origin of Superior Gemellus?", correct:"Ischial spine", options:["Ischial spine","Ischial tuberosity","Sacrotuberous ligament","Ilium"]},
-  {question:"Insertion of Superior Gemellus?", correct:"Greater trochanter (via obturator internus tendon)", options:["Greater trochanter (via obturator internus tendon)","Greater trochanter","Intertrochanteric crest","Gluteal tuberosity"]},
-  {question:"Action of Superior Gemellus?", correct:"Hip ER", options:["Hip ER","Hip IR","Hip ABD","Hip EXT"]},
-  {question:"Nerve supply of Superior Gemellus?", correct:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", options:["n. to superior gemellus and obturator internus mm. (VR L5-S2)","n. to inferior gemellus (L4-S1)","Superior gluteal n. (L4-S1)","Inferior gluteal n. (L5-S2)"]},
-  {question:"Perfusion of Superior Gemellus?", correct:"Inferior Gluteal aa/vv", options:["Inferior Gluteal aa/vv","Superior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]},
-
-  {question:"Origin of Obturator Internus?", correct:"Ischiopubic ramus, Obturator membrane", options:["Ischiopubic ramus, Obturator membrane","Ischial tuberosity","Ischial spine","Anterior gluteal line"]},
-  {question:"Insertion of Obturator Internus?", correct:"Greater trochanter", options:["Greater trochanter","Intertrochanteric crest","Gluteal tuberosity","IT band"]},
-  {question:"Action of Obturator Internus?", correct:"Hip ER, ABD", options:["Hip ER, ABD","Hip IR, ABD","Hip EXT","Hip FLEX"]},
-  {question:"Nerve supply of Obturator Internus?", correct:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", options:["n. to superior gemellus and obturator internus mm. (VR L5-S2)","n. to inferior gemellus and quadratus femoris (L4-S1)","Superior gluteal n. (L4-S1)","Inferior gluteal n. (L5-S2)"]},
-  {question:"Perfusion of Obturator Internus?", correct:"Inferior Gluteal aa/vv", options:["Inferior Gluteal aa/vv","Superior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]},
-
-  {question:"Origin of Inferior Gemellus?", correct:"Ischial tuberosity", options:["Ischial tuberosity","Ischial spine","Sacrotuberous ligament","Ilium"]},
-  {question:"Insertion of Inferior Gemellus?", correct:"Greater trochanter (via obturator internus tendon)", options:["Greater trochanter (via obturator internus tendon)","Greater trochanter","Intertrochanteric crest","Gluteal tuberosity"]},
-  {question:"Action of Inferior Gemellus?", correct:"Hip ER", options:["Hip ER","Hip IR","Hip ABD","Hip EXT"]},
-  {question:"Nerve supply of Inferior Gemellus?", correct:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", options:["n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)","n. to superior gemellus (L5-S2)","Superior gluteal n. (L4-S1)","Inferior gluteal n. (L5-S2)"]},
-  {question:"Perfusion of Inferior Gemellus?", correct:"Inferior Gluteal aa/vv", options:["Inferior Gluteal aa/vv","Superior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]},
-
-  {question:"Origin of Quadratus Femoris?", correct:"Ischial tuberosity", options:["Ischial tuberosity","Ischial spine","Ilium","Sacrotuberous ligament"]},
-  {question:"Insertion of Quadratus Femoris?", correct:"Intertrochanteric crest", options:["Intertrochanteric crest","Greater trochanter","Gluteal tuberosity","IT band"]},
-  {question:"Action of Quadratus Femoris?", correct:"Hip ER", options:["Hip ER","Hip IR","Hip ABD","Hip EXT"]},
-  {question:"Nerve supply of Quadratus Femoris?", correct:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", options:["n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)","n. to superior gemellus (L5-S2)","Superior gluteal n. (L4-S1)","Inferior gluteal n. (L5-S2)"]},
-  {question:"Perfusion of Quadratus Femoris?", correct:"Inferior Gluteal aa/vv", options:["Inferior Gluteal aa/vv","Superior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"]}
+  {muscle:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"Inferior gluteal n. (VR L5-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
+  {muscle:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
+  {muscle:"Gluteus Minimus", origin:"Anterior and Inferior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
+  {muscle:"Piriformis", origin:"Anterior surface of sacrum, Sacrotuberous ligament", insertion:"Greater trochanter", action:"Hip ER", nerve:"n. to piriformis mm. (VR S1-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
+  {muscle:"Superior Gemellus", origin:"Ischial spine", insertion:"Greater trochanter (via obturator internus tendon)", action:"Hip ER", nerve:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", perfusion:"Inferior Gluteal aa/vv"},
+  {muscle:"Obturator Internus", origin:"Ischiopubic ramus, Obturator membrane", insertion:"Greater trochanter", action:"Hip ER, ABD", nerve:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", perfusion:"Inferior Gluteal aa/vv"},
+  {muscle:"Inferior Gemellus", origin:"Ischial tuberosity", insertion:"Greater trochanter", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"},
+  {muscle:"Quadratus Femoris", origin:"Ischial tuberosity", insertion:"Intertrochanteric crest", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"}
 ];
 
 let currentIndex = 0;
 let score = 0;
 
-// 페이지 로드 시 문제 섞기
+// 문제 순서 섞기
 shuffleArray(quizData);
 loadQuestion();
 
+// 문제 로드
 function loadQuestion(){
   const q = quizData[currentIndex];
-  document.getElementById("question").innerText = q.question;
+  const attributes = ["origin","insertion","action","nerve","perfusion"];
+  const chosenAttr = attributes[Math.floor(Math.random()*attributes.length)];
+
+  const reverse = Math.random()<0.5; // 50% chance muscle→attribute, 50% attribute→muscle
+  let questionText;
+  let correctAnswer;
+  let optionsPool;
+
+  if(!reverse){
+    // muscle → attribute
+    questionText = `${q.muscle}의 ${capitalize(chosenAttr)}은?`;
+    correctAnswer = q[chosenAttr];
+  } else {
+    // attribute → muscle
+    questionText = `${capitalize(chosenAttr)}가 '${q[chosenAttr]}'인 근육은?`;
+    correctAnswer = q.muscle;
+  }
+
+  // 옵션 선택
+  switch(chosenAttr){
+    case "origin": optionsPool = originPool; break;
+    case "insertion": optionsPool = insertionPool; break;
+    case "action": optionsPool = actionPool; break;
+    case "nerve": optionsPool = nervePool; break;
+    case "perfusion": optionsPool = perfusionPool; break;
+  }
+
+  let opts = [correctAnswer];
+  if(reverse){
+    // 근육 문제일 땐 근육 풀에서 선택
+    while(opts.length < 4){
+      const randOpt = muscles[Math.floor(Math.random()*muscles.length)];
+      if(!opts.includes(randOpt)) opts.push(randOpt);
+    }
+  } else {
+    // attribute 문제일 땐 attribute 풀에서 선택
+    while(opts.length < 4){
+      const randOpt = optionsPool[Math.floor(Math.random()*optionsPool.length)];
+      if(!opts.includes(randOpt)) opts.push(randOpt);
+    }
+  }
+
+  shuffleArray(opts);
+
+  document.getElementById("question").innerText = questionText;
   const optionsDiv = document.getElementById("options");
   optionsDiv.innerHTML = "";
-  shuffleArray(q.options).forEach(opt=>{
+
+  opts.forEach(opt=>{
     const div = document.createElement("div");
     div.className="option";
-    div.innerText=opt;
-    div.onclick=()=>selectOption(div,q.correct);
+    div.innerText = opt;
+    div.onclick = ()=>selectOption(div, correctAnswer);
     optionsDiv.appendChild(div);
   });
-  document.getElementById("feedback").innerText="";
+
+  document.getElementById("feedback").innerText = "";
 }
 
+// 선택 처리
 function selectOption(element, correctAnswer){
   const options = document.querySelectorAll(".option");
-  options.forEach(opt=>opt.onclick=null); // 선택 후 다른 클릭 막기
+  options.forEach(opt=>opt.onclick=null);
   if(element.innerText===correctAnswer){
     element.classList.add("correct");
     document.getElementById("feedback").innerText="✅ Correct!";
@@ -111,9 +171,10 @@ function selectOption(element, correctAnswer){
     document.getElementById("feedback").innerText="❌ Wrong! Correct: "+correctAnswer;
     [...options].find(opt=>opt.innerText===correctAnswer).classList.add("correct");
   }
-  document.getElementById("score").innerText = score; // 점수 바로 갱신
+  document.getElementById("score").innerText = score;
 }
 
+// 다음 문제
 function nextQuestion(){
   currentIndex++;
   if(currentIndex>=quizData.length){
@@ -123,9 +184,9 @@ function nextQuestion(){
   } else loadQuestion();
 }
 
-// 배열 섞기 함수
+// 유틸
 function shuffleArray(array){return array.sort(()=>Math.random()-0.5);}
+function capitalize(str){return str.charAt(0).toUpperCase() + str.slice(1);}
 </script>
 </body>
 </html>
-
