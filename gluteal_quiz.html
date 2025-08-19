@@ -6,74 +6,50 @@
 <title>Gluteal Muscle Quiz</title>
 <style>
 body { font-family: Arial; background:#f0f4f9; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-.quiz-container { background:white; padding:20px 30px; border-radius:12px; width:90%; max-width:500px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+.container { background:white; padding:20px 30px; border-radius:12px; width:90%; max-width:500px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+button { margin:8px; padding:12px 20px; border:none; background:#4a90e2; color:white; border-radius:6px; cursor:pointer; font-size:16px; }
+button:hover {background:#357ab7;}
 .option { background:#e9eff5; padding:12px; margin:8px 0; border-radius:8px; cursor:pointer; font-size:16px; }
 .option:hover { background:#d0e0f0; }
 .correct { background:#b4f1b4 !important; }
 .wrong { background:#f7b4b4 !important; }
-button { margin-top:15px; padding:12px 20px; border:none; background:#4a90e2; color:white; border-radius:6px; cursor:pointer; font-size:16px; }
-button:hover {background:#357ab7;}
 #feedback { font-weight:bold; margin-top:10px; min-height:24px;}
 </style>
 </head>
 <body>
-<div class="quiz-container">
-<h2 id="question">Loading...</h2>
-<div id="options"></div>
-<p id="feedback"></p>
-<button onclick="nextQuestion()">Next</button>
-<p>Score: <span id="score">0</span></p>
+
+<div id="mainScreen" class="container">
+  <h2>Gluteal Muscle Quiz</h2>
+  <button onclick="showQuizSettings()">Start Gluteal Region Quiz</button>
+</div>
+
+<div id="quizSettings" class="container" style="display:none;">
+  <h2>Select Number of Questions</h2>
+  <button onclick="startQuiz(10)">10</button>
+  <button onclick="startQuiz(30)">30</button>
+  <button onclick="startQuiz(50)">50</button>
+  <button onclick="startQuiz(quizData.length)">All</button>
+  <br><br>
+  <button onclick="showMain()">Back</button>
+</div>
+
+<div id="quizScreen" class="container" style="display:none;">
+  <h2 id="question">Loading...</h2>
+  <div id="options"></div>
+  <p id="feedback"></p>
+  <button onclick="nextQuestion()">Next</button>
+  <p>Score: <span id="score">0</span></p>
 </div>
 
 <script>
 // Muscles
-const muscles = [
-  "Gluteus Maximus", "Gluteus Medius", "Gluteus Minimus",
-  "Piriformis", "Superior Gemellus", "Obturator Internus",
-  "Inferior Gemellus", "Quadratus Femoris"
-];
+const muscles = ["Gluteus Maximus","Gluteus Medius","Gluteus Minimus","Piriformis","Superior Gemellus","Obturator Internus","Inferior Gemellus","Quadratus Femoris"];
+const originPool = ["Ilium, sacrum, coccyx, sacrotuberous ligament","Anterior and Posterior gluteal lines (Ilium)","Anterior and Inferior gluteal lines (Ilium)","Ischial spine","Ischial tuberosity","Ischiopubic ramus, Obturator membrane","Anterior surface of sacrum"];
+const insertionPool = ["Greater trochanter","Gluteal tuberosity, iliotibial tract (IT Band)","Intertrochanteric crest","Greater trochanter (via obturator internus tendon)"];
+const actionPool = ["Hip ER, EXT","Hip IR, ABD + Hip stabilization","Hip IR, ABD","Hip ER, ABD","Hip ER","Hip FLEX","Hip ADD"];
+const nervePool = ["Inferior gluteal n. (VR L5-S2)","Superior gluteal n. (VR L4-S1)","n. to piriformis mm. (VR S1-S2)","n. to superior gemellus and obturator internus mm. (VR L5-S2)","n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)"];
+const perfusionPool = ["Superior and Inferior gluteal aa/vv","Superior gluteal aa/vv","Inferior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"];
 
-// Option pools
-const originPool = [
-  "Ilium, sacrum, coccyx, sacrotuberous ligament",
-  "Anterior and Posterior gluteal lines (Ilium)",
-  "Anterior and Inferior gluteal lines (Ilium)",
-  "Ischial spine",
-  "Ischial tuberosity",
-  "Ischiopubic ramus, Obturator membrane",
-  "Anterior surface of sacrum"
-];
-const insertionPool = [
-  "Greater trochanter",
-  "Gluteal tuberosity, iliotibial tract (IT Band)",
-  "Intertrochanteric crest",
-  "Greater trochanter (via obturator internus tendon)"
-];
-const actionPool = [
-  "Hip ER, EXT",
-  "Hip IR, ABD + Hip stabilization",
-  "Hip IR, ABD",
-  "Hip ER, ABD",
-  "Hip ER",
-  "Hip FLEX",
-  "Hip ADD"
-];
-const nervePool = [
-  "Inferior gluteal n. (VR L5-S2)",
-  "Superior gluteal n. (VR L4-S1)",
-  "n. to piriformis mm. (VR S1-S2)",
-  "n. to superior gemellus and obturator internus mm. (VR L5-S2)",
-  "n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)"
-];
-const perfusionPool = [
-  "Superior and Inferior gluteal aa/vv",
-  "Superior gluteal aa/vv",
-  "Inferior Gluteal aa/vv",
-  "Obturator aa/vv",
-  "Femoral aa/vv"
-];
-
-// Quiz data
 const quizData = [
   {muscle:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"Inferior gluteal n. (VR L5-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
   {muscle:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
@@ -87,15 +63,40 @@ const quizData = [
 
 let currentIndex = 0;
 let score = 0;
-shuffleArray(quizData);
-loadQuestion();
+let selectedQuizLength = 0;
+let quizPool = [];
+
+function showMain(){
+  document.getElementById("mainScreen").style.display="block";
+  document.getElementById("quizSettings").style.display="none";
+  document.getElementById("quizScreen").style.display="none";
+}
+
+function showQuizSettings(){
+  document.getElementById("mainScreen").style.display="none";
+  document.getElementById("quizSettings").style.display="block";
+  document.getElementById("quizScreen").style.display="none";
+}
+
+function startQuiz(num){
+  selectedQuizLength = num;
+  currentIndex = 0;
+  score = 0;
+  quizPool = [];
+  for(let i=0;i<selectedQuizLength;i++){
+    quizPool.push(quizData[Math.floor(Math.random()*quizData.length)]);
+  }
+  document.getElementById("quizScreen").style.display="block";
+  document.getElementById("quizSettings").style.display="none";
+  loadQuestion();
+}
 
 function loadQuestion(){
-  const q = quizData[currentIndex];
+  const q = quizPool[currentIndex];
   const attributes = ["origin","insertion","action","nerve","perfusion"];
   const chosenAttr = attributes[Math.floor(Math.random()*attributes.length)];
-
   const reverse = Math.random()<0.5;
+
   let questionText;
   let correctAnswer;
   let optionsPool;
@@ -118,18 +119,17 @@ function loadQuestion(){
 
   let opts = [correctAnswer];
   if(reverse){
-    while(opts.length < 4){
+    while(opts.length<4){
       const randOpt = muscles[Math.floor(Math.random()*muscles.length)];
       if(!opts.includes(randOpt) && randOpt!==correctAnswer) opts.push(randOpt);
     }
   } else {
     const pool = optionsPool.filter(val=>val!==correctAnswer);
-    while(opts.length < 4){
+    while(opts.length<4){
       const randOpt = pool[Math.floor(Math.random()*pool.length)];
       if(!opts.includes(randOpt)) opts.push(randOpt);
     }
   }
-
   shuffleArray(opts);
 
   document.getElementById("question").innerText = questionText;
@@ -143,6 +143,7 @@ function loadQuestion(){
     optionsDiv.appendChild(div);
   });
   document.getElementById("feedback").innerText="";
+  document.getElementById("score").innerText = score;
 }
 
 function selectOption(element, correctAnswer){
@@ -162,11 +163,15 @@ function selectOption(element, correctAnswer){
 
 function nextQuestion(){
   currentIndex++;
-  if(currentIndex>=quizData.length){
-    document.getElementById("question").innerText="🎉 Quiz Finished!";
-    document.getElementById("options").innerHTML="";
-    document.getElementById("feedback").innerText="Your score: "+score+"/"+quizData.length+" ✅";
-  } else loadQuestion();
+  if(currentIndex >= quizPool.length){
+    // Quiz finished, show score and wait for user to click Next to return to main menu
+    document.getElementById("question").innerText = "🎉 Quiz Finished!";
+    document.getElementById("options").innerHTML = "";
+    document.getElementById("feedback").innerHTML = "Your score: " + score + "/" + quizPool.length + " ✅<br>Click 'Next' to return to main menu.";
+    document.querySelector("#quizScreen button").onclick = showMain;
+  } else {
+    loadQuestion();
+  }
 }
 
 function shuffleArray(array){return array.sort(()=>Math.random()-0.5);}
