@@ -80,6 +80,10 @@ const quizData = [
 let currentIndex = 0;
 let score = 0;
 
+// 페이지 로드 시 문제 섞기
+shuffleArray(quizData);
+loadQuestion();
+
 function loadQuestion(){
   const q = quizData[currentIndex];
   document.getElementById("question").innerText = q.question;
@@ -97,17 +101,17 @@ function loadQuestion(){
 
 function selectOption(element, correctAnswer){
   const options = document.querySelectorAll(".option");
-  options.forEach(opt=>opt.onclick=null);
+  options.forEach(opt=>opt.onclick=null); // 선택 후 다른 클릭 막기
   if(element.innerText===correctAnswer){
     element.classList.add("correct");
     document.getElementById("feedback").innerText="✅ Correct!";
     score++;
-    document.getElementById("score").innerText=score;
   } else {
     element.classList.add("wrong");
     document.getElementById("feedback").innerText="❌ Wrong! Correct: "+correctAnswer;
     [...options].find(opt=>opt.innerText===correctAnswer).classList.add("correct");
   }
+  document.getElementById("score").innerText = score; // 점수 바로 갱신
 }
 
 function nextQuestion(){
@@ -115,13 +119,13 @@ function nextQuestion(){
   if(currentIndex>=quizData.length){
     document.getElementById("question").innerText="🎉 Quiz Finished!";
     document.getElementById("options").innerHTML="";
-    document.getElementById("feedback").innerText="Your score: "+score+"/"+quizData.length;
+    document.getElementById("feedback").innerText="Your score: "+score+"/"+quizData.length+" ✅";
   } else loadQuestion();
 }
 
+// 배열 섞기 함수
 function shuffleArray(array){return array.sort(()=>Math.random()-0.5);}
-
-loadQuestion();
 </script>
 </body>
 </html>
+
