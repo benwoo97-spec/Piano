@@ -3,174 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gluteal Muscle Quiz</title>
+<title>Gluteal Muscle Quiz Optimized</title>
 <style>
 body { font-family: Arial; background:#f0f4f9; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-.container { background:white; padding:20px 30px; border-radius:12px; width:90%; max-width:500px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
-button { margin:8px; padding:12px 20px; border:none; background:#4a90e2; color:white; border-radius:6px; cursor:pointer; font-size:16px; }
+.screen { display:none; flex-direction:column; align-items:center; }
+.screen.active { display:flex; }
+button { margin:10px; padding:12px 20px; border:none; background:#4a90e2; color:white; border-radius:6px; cursor:pointer; font-size:16px; }
 button:hover {background:#357ab7;}
+.quiz-container { background:white; padding:20px 30px; border-radius:12px; width:90%; max-width:500px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
 .option { background:#e9eff5; padding:12px; margin:8px 0; border-radius:8px; cursor:pointer; font-size:16px; }
-.option:hover { background:#d0e0f0; }
-.correct { background:#b4f1b4 !important; }
-.wrong { background:#f7b4b4 !important; }
-#feedback { font-weight:bold; margin-top:10px; min-height:24px;}
+.option.selected { background:#ffd966; }
+.option.correct { background:#b4f1b4 !important; }
+.option.wrong { background:#f7b4b4 !important; }
+#feedback, #prevFeedback, #progress { font-weight:bold; margin-top:10px; min-height:24px;}
 </style>
 </head>
 <body>
 
-<div id="mainScreen" class="container">
-  <h2>Gluteal Muscle Quiz</h2>
-  <button onclick="showQuizSettings()">Start Gluteal Region Quiz</button>
+<div id="mainScreen" class="screen active">
+  <h1>Gluteal Muscle Quiz</h1>
+  <button onclick="showSettings()">Start Quiz</button>
 </div>
 
-<div id="quizSettings" class="container" style="display:none;">
+<div id="settingsScreen" class="screen">
   <h2>Select Number of Questions</h2>
   <button onclick="startQuiz(10)">10</button>
   <button onclick="startQuiz(30)">30</button>
   <button onclick="startQuiz(50)">50</button>
-  <button onclick="startQuiz(quizData.length)">All</button>
-  <br><br>
-  <button onclick="showMain()">Back</button>
+  <button onclick="startQuiz(80)">All (80)</button>
 </div>
 
-<div id="quizScreen" class="container" style="display:none;">
-  <h2 id="question">Loading...</h2>
-  <div id="options"></div>
-  <p id="feedback"></p>
-  <button onclick="nextQuestion()">Next</button>
-  <p>Score: <span id="score">0</span></p>
+<div id="quizScreen" class="screen">
+  <div class="quiz-container">
+    <div id="prevFeedback"></div>
+    <div id="progress"></div>
+    <h2 id="question">Loading...</h2>
+    <div id="options"></div>
+    <p id="feedback"></p>
+    <button onclick="submitAnswer()">Submit Answer</button>
+    <button onclick="nextQuestion()">Next</button>
+    <p>Score: <span id="score">0</span></p>
+  </div>
 </div>
 
 <script>
-// Muscles
-const muscles = ["Gluteus Maximus","Gluteus Medius","Gluteus Minimus","Piriformis","Superior Gemellus","Obturator Internus","Inferior Gemellus","Quadratus Femoris"];
-const originPool = ["Ilium, sacrum, coccyx, sacrotuberous ligament","Anterior and Posterior gluteal lines (Ilium)","Anterior and Inferior gluteal lines (Ilium)","Ischial spine","Ischial tuberosity","Ischiopubic ramus, Obturator membrane","Anterior surface of sacrum"];
-const insertionPool = ["Greater trochanter","Gluteal tuberosity, iliotibial tract (IT Band)","Intertrochanteric crest","Greater trochanter (via obturator internus tendon)"];
-const actionPool = ["Hip ER, EXT","Hip IR, ABD + Hip stabilization","Hip IR, ABD","Hip ER, ABD","Hip ER","Hip FLEX","Hip ADD"];
-const nervePool = ["Inferior gluteal n. (VR L5-S2)","Superior gluteal n. (VR L4-S1)","n. to piriformis mm. (VR S1-S2)","n. to superior gemellus and obturator internus mm. (VR L5-S2)","n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)"];
-const perfusionPool = ["Superior and Inferior gluteal aa/vv","Superior gluteal aa/vv","Inferior Gluteal aa/vv","Obturator aa/vv","Femoral aa/vv"];
-
+// Muscle data
 const quizData = [
   {muscle:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"Inferior gluteal n. (VR L5-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
   {muscle:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
   {muscle:"Gluteus Minimus", origin:"Anterior and Inferior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
-  {muscle:"Piriformis", origin:"Anterior surface of sacrum, Sacrotuberous ligament", insertion:"Greater trochanter", action:"Hip ER", nerve:"n. to piriformis mm. (VR S1-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
+  {muscle:"Piriformis", origin:"Anterior surface of sacrum, Sacrotuberous ligament", insertion:"Greater trochanter (upper end)", action:"Hip ER", nerve:"n. to piriformis mm. (VR S1-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
   {muscle:"Superior Gemellus", origin:"Ischial spine", insertion:"Greater trochanter (via obturator internus tendon)", action:"Hip ER", nerve:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", perfusion:"Inferior Gluteal aa/vv"},
   {muscle:"Obturator Internus", origin:"Ischiopubic ramus, Obturator membrane", insertion:"Greater trochanter", action:"Hip ER, ABD", nerve:"n. to superior gemellus and obturator internus mm. (VR L5-S2)", perfusion:"Inferior Gluteal aa/vv"},
-  {muscle:"Inferior Gemellus", origin:"Ischial tuberosity", insertion:"Greater trochanter", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"},
+  {muscle:"Inferior Gemellus", origin:"Ischial tuberosity", insertion:"Greater trochanter (via obturator internus tendon)", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"},
   {muscle:"Quadratus Femoris", origin:"Ischial tuberosity", insertion:"Intertrochanteric crest", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"}
 ];
 
-let currentIndex = 0;
-let score = 0;
-let selectedQuizLength = 0;
-let quizPool = [];
+let quizPool=[], currentIndex=0, score=0, selectedOptions=[], currentCorrect=[], prevFeedbackText="", answerSubmitted=false;
 
-function showMain(){
-  document.getElementById("mainScreen").style.display="block";
-  document.getElementById("quizSettings").style.display="none";
-  document.getElementById("quizScreen").style.display="none";
-}
+// Expand pool with both directions
+const attributes = ["origin","insertion","action","nerve","perfusion"];
+let expandedPool = [];
+quizData.forEach(m=>{
+  attributes.forEach(attr=>{
+    expandedPool.push({muscle:m.muscle, attr:attr, answer:m[attr]});
+  });
+});
 
-function showQuizSettings(){
-  document.getElementById("mainScreen").style.display="none";
-  document.getElementById("quizSettings").style.display="block";
-  document.getElementById("quizScreen").style.display="none";
-}
+// Pools for options
+const originPool = [...new Set(quizData.map(m=>m.origin))];
+const insertionPool = [...new Set(quizData.map(m=>m.insertion))];
+const actionPool = [...new Set(quizData.map(m=>m.action))];
+const nervePool = [...new Set(quizData.map(m=>m.nerve))];
+const perfusionPool = [...new Set(quizData.map(m=>m.perfusion))];
+const muscles = quizData.map(m=>m.muscle);
+
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showSettings(){ showScreen('settingsScreen'); }
 
 function startQuiz(num){
-  selectedQuizLength = num;
-  currentIndex = 0;
-  score = 0;
-  quizPool = [];
-  for(let i=0;i<selectedQuizLength;i++){
-    quizPool.push(quizData[Math.floor(Math.random()*quizData.length)]);
-  }
-  document.getElementById("quizScreen").style.display="block";
-  document.getElementById("quizSettings").style.display="none";
+  score=0; currentIndex=0; answerSubmitted=false; prevFeedbackText="";
+  let bothDirectionPool=[];
+  expandedPool.forEach(q=>{ bothDirectionPool.push({...q, reverse:false}); bothDirectionPool.push({...q, reverse:true}); });
+  quizPool=shuffleArray(bothDirectionPool);
+  if(num!=='all') quizPool=quizPool.slice(0,num);
+  showScreen('quizScreen');
+  initOptionDivs();
   loadQuestion();
 }
 
-function loadQuestion(){
-  const q = quizPool[currentIndex];
-  const attributes = ["origin","insertion","action","nerve","perfusion"];
-  const chosenAttr = attributes[Math.floor(Math.random()*attributes.length)];
-  const reverse = Math.random()<0.5;
-
-  let questionText;
-  let correctAnswer;
-  let optionsPool;
-
-  if(!reverse){
-    questionText = `${q.muscle}'s ${capitalize(chosenAttr)}?`;
-    correctAnswer = q[chosenAttr];
-  } else {
-    questionText = `Which muscle has ${capitalize(chosenAttr)} '${q[chosenAttr]}'?`;
-    correctAnswer = q.muscle;
-  }
-
-  switch(chosenAttr){
-    case "origin": optionsPool = originPool; break;
-    case "insertion": optionsPool = insertionPool; break;
-    case "action": optionsPool = actionPool; break;
-    case "nerve": optionsPool = nervePool; break;
-    case "perfusion": optionsPool = perfusionPool; break;
-  }
-
-  let opts = [correctAnswer];
-  if(reverse){
-    while(opts.length<4){
-      const randOpt = muscles[Math.floor(Math.random()*muscles.length)];
-      if(!opts.includes(randOpt) && randOpt!==correctAnswer) opts.push(randOpt);
-    }
-  } else {
-    const pool = optionsPool.filter(val=>val!==correctAnswer);
-    while(opts.length<4){
-      const randOpt = pool[Math.floor(Math.random()*pool.length)];
-      if(!opts.includes(randOpt)) opts.push(randOpt);
-    }
-  }
-  shuffleArray(opts);
-
-  document.getElementById("question").innerText = questionText;
-  const optionsDiv = document.getElementById("options");
-  optionsDiv.innerHTML = "";
-  opts.forEach(opt=>{
-    const div = document.createElement("div");
+// Pre-create 4 option divs
+function initOptionDivs(){
+  const optionsDiv=document.getElementById("options");
+  optionsDiv.innerHTML="";
+  for(let i=0;i<4;i++){
+    let div=document.createElement("div");
     div.className="option";
-    div.innerText = opt;
-    div.onclick = ()=>selectOption(div, correctAnswer);
+    div.onclick=()=>toggleOption(div);
     optionsDiv.appendChild(div);
-  });
-  document.getElementById("feedback").innerText="";
-  document.getElementById("score").innerText = score;
+  }
 }
 
-function selectOption(element, correctAnswer){
-  const options = document.querySelectorAll(".option");
-  options.forEach(opt=>opt.onclick=null);
-  if(element.innerText===correctAnswer){
-    element.classList.add("correct");
+function loadQuestion(){
+  selectedOptions=[]; currentCorrect=[]; answerSubmitted=false;
+  const q=quizPool[currentIndex];
+  let questionText, optionsPool;
+
+  if(!q.reverse){
+    questionText = `${q.muscle}'s ${capitalize(q.attr)}?`;
+    currentCorrect=[q.answer];
+    optionsPool=getPool(q.attr);
+  } else {
+    questionText = `Which muscle has ${capitalize(q.attr)} '${q.answer}'?`;
+    currentCorrect=expandedPool.filter(m=>m.attr===q.attr && m.answer===q.answer).map(m=>m.muscle);
+    optionsPool=muscles;
+  }
+
+  let opts=[...currentCorrect];
+  let shuffledPool=shuffleArray([...optionsPool]);
+  for(let i=0;i<shuffledPool.length && opts.length<4;i++){
+    if(!opts.includes(shuffledPool[i])) opts.push(shuffledPool[i]);
+  }
+  opts=shuffleArray(opts);
+
+  document.getElementById("question").innerText=questionText;
+  const optionDivs=document.querySelectorAll(".option");
+  optionDivs.forEach((div,i)=>{
+    div.innerText=opts[i];
+    div.className="option";
+  });
+  document.getElementById("prevFeedback").innerText=prevFeedbackText;
+  document.getElementById("feedback").innerText="";
+  document.getElementById("score").innerText=score;
+  document.getElementById("progress").innerText=`Question ${currentIndex+1} of ${quizPool.length}`;
+}
+
+function toggleOption(div){
+  if(answerSubmitted) return;
+  if(div.classList.contains('selected')) { div.classList.remove('selected'); selectedOptions=selectedOptions.filter(o=>o!==div.innerText); }
+  else { div.classList.add('selected'); selectedOptions.push(div.innerText); }
+}
+
+function submitAnswer(){
+  if(answerSubmitted){ alert("You already submitted this question!"); return; }
+  if(selectedOptions.length===0){ alert("Select at least one option!"); return; }
+  answerSubmitted=true;
+
+  const selectedSet=new Set(selectedOptions);
+  const correctSet=new Set(currentCorrect);
+  const isCorrect=selectedSet.size===correctSet.size && [...correctSet].every(ans=>selectedSet.has(ans));
+
+  const optionDivs=document.querySelectorAll(".option");
+  optionDivs.forEach(div=>{
+    if(currentCorrect.includes(div.innerText)) div.classList.add("correct");
+    else if(div.classList.contains("selected")) div.classList.add("wrong");
+  });
+
+  if(isCorrect){
     document.getElementById("feedback").innerText="✅ Correct!";
     score++;
+    prevFeedbackText="✅ Previous: Correct!";
   } else {
-    element.classList.add("wrong");
-    document.getElementById("feedback").innerText="❌ Wrong! Correct: "+correctAnswer;
-    [...options].find(opt=>opt.innerText===correctAnswer).classList.add("correct");
+    document.getElementById("feedback").innerText="❌ Wrong! Correct: "+currentCorrect.join(", ");
+    prevFeedbackText="❌ Previous: Wrong!";
   }
-  document.getElementById("score").innerText = score;
+  document.getElementById("score").innerText=score;
 }
 
 function nextQuestion(){
+  if(!answerSubmitted){ alert("Please submit your answer before moving to the next question!"); return; }
   currentIndex++;
-  if(currentIndex >= quizPool.length){
-    // Quiz finished, show score and wait for user to click Next to return to main menu
-    document.getElementById("question").innerText = "🎉 Quiz Finished!";
-    document.getElementById("options").innerHTML = "";
-    document.getElementById("feedback").innerHTML = "Your score: " + score + "/" + quizPool.length + " ✅<br>Click 'Next' to return to main menu.";
-    document.querySelector("#quizScreen button").onclick = showMain;
-  } else {
-    loadQuestion();
+  if(currentIndex>=quizPool.length){ alert(`🎉 Quiz Finished! Score: ${score}/${quizPool.length}`); showScreen('mainScreen'); }
+  else loadQuestion();
+}
+
+function getPool(attr){
+  switch(attr){
+    case "origin": return originPool;
+    case "insertion": return insertionPool;
+    case "action": return actionPool;
+    case "nerve": return nervePool;
+    case "perfusion": return perfusionPool;
   }
 }
 
