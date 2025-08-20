@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gluteal Muscle Quiz Optimized</title>
+<title>Gluteal Muscle Quiz with No Duplicates</title>
 <style>
 body { font-family: Arial; background:#f0f4f9; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
 .screen { display:none; flex-direction:column; align-items:center; }
@@ -21,8 +21,8 @@ button:hover {background:#357ab7;}
 <body>
 
 <div id="mainScreen" class="screen active">
-  <h1>Gluteal Muscle Quiz</h1>
-  <button onclick="showSettings()">Start Quiz</button>
+  <h1>Piano's Quiz</h1>
+  <button onclick="showSettings()">Gluteal Region</button>
 </div>
 
 <div id="settingsScreen" class="screen">
@@ -30,7 +30,7 @@ button:hover {background:#357ab7;}
   <button onclick="startQuiz(10)">10</button>
   <button onclick="startQuiz(30)">30</button>
   <button onclick="startQuiz(50)">50</button>
-  <button onclick="startQuiz(80)">All (80)</button>
+  <button onclick="startQuiz('all')">All (80)</button>
 </div>
 
 <div id="quizScreen" class="screen">
@@ -40,9 +40,11 @@ button:hover {background:#357ab7;}
     <h2 id="question">Loading...</h2>
     <div id="options"></div>
     <p id="feedback"></p>
-    <button onclick="submitAnswer()">Submit Answer</button>
-    <button onclick="nextQuestion()">Next</button>
+    <button onclick="submitAnswer()" id="submitBtn">Submit Answer</button>
+    <button onclick="nextQuestion()" id="nextBtn">Next</button>
     <p>Score: <span id="score">0</span></p>
+    <button id="reviewButton" style="display:none;" onclick="reviewWrong()">🔄 Review Wrong Questions</button>
+    <button id="homeButton" style="display:none;" onclick="goHome()">🏠 Home</button>
   </div>
 </div>
 
@@ -60,39 +62,42 @@ const quizData = [
 ];
 
 let quizPool=[], currentIndex=0, score=0, selectedOptions=[], currentCorrect=[], prevFeedbackText="", answerSubmitted=false;
-
-// Expand pool with both directions
+let wrongQuestions=[]; // 틀린 문제 저장
 const attributes = ["origin","insertion","action","nerve","perfusion"];
-let expandedPool = [];
-quizData.forEach(m=>{
-  attributes.forEach(attr=>{
-    expandedPool.push({muscle:m.muscle, attr:attr, answer:m[attr]});
-  });
-});
-
-// Pools for options
-const originPool = [...new Set(quizData.map(m=>m.origin))];
-const insertionPool = [...new Set(quizData.map(m=>m.insertion))];
-const actionPool = [...new Set(quizData.map(m=>m.action))];
-const nervePool = [...new Set(quizData.map(m=>m.nerve))];
-const perfusionPool = [...new Set(quizData.map(m=>m.perfusion))];
 const muscles = quizData.map(m=>m.muscle);
 
 function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function showSettings(){ showScreen('settingsScreen'); }
+function goHome(){ showScreen('mainScreen'); }
 
 function startQuiz(num){
-  score=0; currentIndex=0; answerSubmitted=false; prevFeedbackText="";
-  let bothDirectionPool=[];
-  expandedPool.forEach(q=>{ bothDirectionPool.push({...q, reverse:false}); bothDirectionPool.push({...q, reverse:true}); });
-  quizPool=shuffleArray(bothDirectionPool);
-  if(num!=='all') quizPool=quizPool.slice(0,num);
+  score = 0;
+  currentIndex = 0;
+  answerSubmitted = false;
+  prevFeedbackText = "";
+  wrongQuestions = [];
+  document.getElementById("reviewButton").style.display = "none";
+  document.getElementById("homeButton").style.display = "none";
+  document.getElementById("submitBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").style.display = "inline-block";
+
+  // 중복 제거: muscle+attr 조합 하나씩만 문제 생성, reverse 50% 랜덤
+  let tempPool = [];
+  quizData.forEach(m=>{
+    attributes.forEach(attr=>{
+      const useReverse = Math.random() < 0.5;
+      tempPool.push({muscle:m.muscle, attr:attr, answer:m[attr], reverse:useReverse});
+    });
+  });
+
+  quizPool = shuffleArray(tempPool);
+  if(num !== 'all') quizPool = quizPool.slice(0, num);
+
   showScreen('quizScreen');
   initOptionDivs();
   loadQuestion();
 }
 
-// Pre-create 4 option divs
 function initOptionDivs(){
   const optionsDiv=document.getElementById("options");
   optionsDiv.innerHTML="";
@@ -105,6 +110,20 @@ function initOptionDivs(){
 }
 
 function loadQuestion(){
+  // 퀴즈 종료 처리
+  if(currentIndex >= quizPool.length){
+    prevFeedbackText = ""; // ← 이전 피드백 초기화
+    document.getElementById("prevFeedback").innerText = "";
+    document.getElementById("question").innerText = "🎉 Quiz Finished!";
+    document.getElementById("options").innerHTML = "";
+    document.getElementById("feedback").innerText = `Score: ${score}/${quizPool.length}`;
+    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("nextBtn").style.display = "none";
+    if(wrongQuestions.length > 0) document.getElementById("reviewButton").style.display = "inline-block";
+    document.getElementById("homeButton").style.display = "inline-block";
+    return;
+  }
+
   selectedOptions=[]; currentCorrect=[]; answerSubmitted=false;
   const q=quizPool[currentIndex];
   let questionText, optionsPool;
@@ -115,7 +134,7 @@ function loadQuestion(){
     optionsPool=getPool(q.attr);
   } else {
     questionText = `Which muscle has ${capitalize(q.attr)} '${q.answer}'?`;
-    currentCorrect=expandedPool.filter(m=>m.attr===q.attr && m.answer===q.answer).map(m=>m.muscle);
+    currentCorrect = quizData.filter(m=>m[q.attr]===q.answer).map(m=>m.muscle);
     optionsPool=muscles;
   }
 
@@ -166,6 +185,7 @@ function submitAnswer(){
   } else {
     document.getElementById("feedback").innerText="❌ Wrong! Correct: "+currentCorrect.join(", ");
     prevFeedbackText="❌ Previous: Wrong!";
+    wrongQuestions.push(quizPool[currentIndex]);
   }
   document.getElementById("score").innerText=score;
 }
@@ -173,17 +193,31 @@ function submitAnswer(){
 function nextQuestion(){
   if(!answerSubmitted){ alert("Please submit your answer before moving to the next question!"); return; }
   currentIndex++;
-  if(currentIndex>=quizPool.length){ alert(`🎉 Quiz Finished! Score: ${score}/${quizPool.length}`); showScreen('mainScreen'); }
-  else loadQuestion();
+  loadQuestion();
+}
+
+function reviewWrong(){
+  if(wrongQuestions.length === 0){ alert("No wrong questions to review!"); return; }
+  quizPool = [...wrongQuestions];
+  currentIndex = 0;
+  score = 0;
+  prevFeedbackText = "";
+  wrongQuestions = [];
+  document.getElementById("reviewButton").style.display = "none";
+  document.getElementById("homeButton").style.display = "none";
+  document.getElementById("submitBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").style.display = "inline-block";
+  initOptionDivs();
+  loadQuestion();
 }
 
 function getPool(attr){
   switch(attr){
-    case "origin": return originPool;
-    case "insertion": return insertionPool;
-    case "action": return actionPool;
-    case "nerve": return nervePool;
-    case "perfusion": return perfusionPool;
+    case "origin": return [...new Set(quizData.map(m=>m.origin))];
+    case "insertion": return [...new Set(quizData.map(m=>m.insertion))];
+    case "action": return [...new Set(quizData.map(m=>m.action))];
+    case "nerve": return [...new Set(quizData.map(m=>m.nerve))];
+    case "perfusion": return [...new Set(quizData.map(m=>m.perfusion))];
   }
 }
 
