@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gluteal Muscle Quiz with No Duplicates</title>
+<title>Muscle Quiz with No Duplicates</title>
 <style>
 body { font-family: Arial; background:#f0f4f9; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
 .screen { display:none; flex-direction:column; align-items:center; }
@@ -22,7 +22,9 @@ button:hover {background:#357ab7;}
 
 <div id="mainScreen" class="screen active">
   <h1>Piano's Quiz</h1>
-  <button onclick="showSettings()">Gluteal Region</button>
+  <button onclick="showSettings('gluteal')">Gluteal Region</button>
+  <button onclick="showSettings('trunk')">Trunk & Anterior Thigh</button>
+  <button onclick="showSettings('all')">All Regions</button>
 </div>
 
 <div id="settingsScreen" class="screen">
@@ -30,7 +32,7 @@ button:hover {background:#357ab7;}
   <button onclick="startQuiz(10)">10</button>
   <button onclick="startQuiz(30)">30</button>
   <button onclick="startQuiz(50)">50</button>
-  <button onclick="startQuiz('all')">All (80)</button>
+  <button onclick="startQuiz('all')">All</button>
 </div>
 
 <div id="quizScreen" class="screen">
@@ -50,7 +52,7 @@ button:hover {background:#357ab7;}
 
 <script>
 // Muscle data
-const quizData = [
+const glutealData = [
   {muscle:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"Inferior gluteal n. (VR L5-S2)", perfusion:"Superior and Inferior gluteal aa/vv"},
   {muscle:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
   {muscle:"Gluteus Minimus", origin:"Anterior and Inferior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"Superior gluteal n. (VR L4-S1)", perfusion:"Superior gluteal aa/vv"},
@@ -61,29 +63,47 @@ const quizData = [
   {muscle:"Quadratus Femoris", origin:"Ischial tuberosity", insertion:"Intertrochanteric crest", action:"Hip ER", nerve:"n. to inferior gemellus and Quadratus Femoris mm. (VR L4-S1)", perfusion:"Inferior Gluteal aa/vv"}
 ];
 
+const trunkData = [
+  {muscle:"Psoas Major", origin:"Transverse process (TP), Intervertebral Disks (IVD) and Bodies of T12-L5", insertion:"Lesser Trochanter", action:"Hip FLX, Trunk FLX", nerve:"VR T12 Subcostal n. + L1-L3 spinal n.", perfusion:"12th Anterior Intercostal aa/vv ; #1-3 Lumbar aa/vv"},
+  {muscle:"Psoas Minor", origin:"Intervertebral Disks (IVD), and bodies of T12-L1", insertion:"Lesser Trochanter", action:"aids in Trunk FLX", nerve:"VR T12 Subcostal n. + L1 spinal n.", perfusion:"12th Anterior Intercostal aa/vv ; #1-3 Lumbar aa/vv"},
+  {muscle:"Iliacus", origin:"Iliac fossa, Ala of sacrum", insertion:"Lesser Trochanter", action:"Hip FLX", nerve:"VR L2-L4 femoral n.", perfusion:"External Iliac aa/vv"},
+  {muscle:"Iliopsoas", origin:"Iliac fossa, Ala of sacrum, TP, IVD, and bodies of T12-L5", insertion:"Lesser Trochanter", action:"Hip FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Sartorius", origin:"ASIS", insertion:"Pes Anserine (medial side of tibia bone)", action:"Hip FLX, ER, ABD + Leg IR, FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Rectus Femoris", origin:"AIIS, posterior-superior rim of acetabulum", insertion:"base of patella, tibial tuberosity", action:"Hip FLX, and leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Vastus Medialis", origin:"Intertrochanteric line, linea aspera, medial intermuscular septum", insertion:"medial side of patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Vastus Lateralis", origin:"Intertrochanteric line, linea aspera, lateral intermuscular septum, greater trochanter, gluteal tuberosity", insertion:"lateral side of patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Vastus Intermedius", origin:"upper shaft of femur, lower lateral intermuscular septum", insertion:"upper border of patella, tibial tubeosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Articularis Genu", origin:"Distal Femur (Anterior portion)", insertion:"suprapatellar bursa", action:"Pulls suprapatellar tendon superiorly", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv"},
+  {muscle:"Pectineus", origin:"pectineal line of pubis bone", insertion:"pectineal line of femur bone", action:"Hip FLX, ADD", nerve:"VR L2-L4 femoral n. + VR L2-L4 obturator n.", perfusion:"Femoral aa/vv + Obturator aa/vv"}
+];
+
+let selectedDataset = glutealData;
 let quizPool=[], currentIndex=0, score=0, selectedOptions=[], currentCorrect=[], prevFeedbackText="", answerSubmitted=false;
-let wrongQuestions=[]; // 틀린 문제 저장
+let wrongQuestions=[];
 const attributes = ["origin","insertion","action","nerve","perfusion"];
-const muscles = quizData.map(m=>m.muscle);
+let muscles = selectedDataset.map(m=>m.muscle);
 
 function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function showSettings(){ showScreen('settingsScreen'); }
+
+function showSettings(dataset){
+  if(dataset==='gluteal') selectedDataset = glutealData;
+  else if(dataset==='trunk') selectedDataset = trunkData;
+  else selectedDataset = [...glutealData, ...trunkData];
+  muscles = selectedDataset.map(m=>m.muscle);
+  showScreen('settingsScreen');
+}
+
 function goHome(){ showScreen('mainScreen'); }
 
 function startQuiz(num){
-  score = 0;
-  currentIndex = 0;
-  answerSubmitted = false;
-  prevFeedbackText = "";
-  wrongQuestions = [];
+  score = 0; currentIndex = 0; answerSubmitted = false; prevFeedbackText = ""; wrongQuestions = [];
   document.getElementById("reviewButton").style.display = "none";
   document.getElementById("homeButton").style.display = "none";
   document.getElementById("submitBtn").style.display = "inline-block";
   document.getElementById("nextBtn").style.display = "inline-block";
 
-  // 중복 제거: muscle+attr 조합 하나씩만 문제 생성, reverse 50% 랜덤
   let tempPool = [];
-  quizData.forEach(m=>{
+  selectedDataset.forEach(m=>{
     attributes.forEach(attr=>{
       const useReverse = Math.random() < 0.5;
       tempPool.push({muscle:m.muscle, attr:attr, answer:m[attr], reverse:useReverse});
@@ -110,9 +130,8 @@ function initOptionDivs(){
 }
 
 function loadQuestion(){
-  // 퀴즈 종료 처리
   if(currentIndex >= quizPool.length){
-    prevFeedbackText = ""; // ← 이전 피드백 초기화
+    prevFeedbackText = "";
     document.getElementById("prevFeedback").innerText = "";
     document.getElementById("question").innerText = "🎉 Quiz Finished!";
     document.getElementById("options").innerHTML = "";
@@ -134,7 +153,7 @@ function loadQuestion(){
     optionsPool=getPool(q.attr);
   } else {
     questionText = `Which muscle has ${capitalize(q.attr)} '${q.answer}'?`;
-    currentCorrect = quizData.filter(m=>m[q.attr]===q.answer).map(m=>m.muscle);
+    currentCorrect = selectedDataset.filter(m=>m[q.attr]===q.answer).map(m=>m.muscle);
     optionsPool=muscles;
   }
 
@@ -147,10 +166,7 @@ function loadQuestion(){
 
   document.getElementById("question").innerText=questionText;
   const optionDivs=document.querySelectorAll(".option");
-  optionDivs.forEach((div,i)=>{
-    div.innerText=opts[i];
-    div.className="option";
-  });
+  optionDivs.forEach((div,i)=>{ div.innerText=opts[i]; div.className="option"; });
   document.getElementById("prevFeedback").innerText=prevFeedbackText;
   document.getElementById("feedback").innerText="";
   document.getElementById("score").innerText=score;
@@ -178,15 +194,9 @@ function submitAnswer(){
     else if(div.classList.contains("selected")) div.classList.add("wrong");
   });
 
-  if(isCorrect){
-    document.getElementById("feedback").innerText="✅ Correct!";
-    score++;
-    prevFeedbackText="✅ Previous: Correct!";
-  } else {
-    document.getElementById("feedback").innerText="❌ Wrong! Correct: "+currentCorrect.join(", ");
-    prevFeedbackText="❌ Previous: Wrong!";
-    wrongQuestions.push(quizPool[currentIndex]);
-  }
+  if(isCorrect){ document.getElementById("feedback").innerText="✅ Correct!"; score++; prevFeedbackText="✅ Previous: Correct!"; }
+  else { document.getElementById("feedback").innerText="❌ Wrong! Correct: "+currentCorrect.join(", "); prevFeedbackText="❌ Previous: Wrong!"; wrongQuestions.push(quizPool[currentIndex]); }
+
   document.getElementById("score").innerText=score;
 }
 
@@ -212,13 +222,7 @@ function reviewWrong(){
 }
 
 function getPool(attr){
-  switch(attr){
-    case "origin": return [...new Set(quizData.map(m=>m.origin))];
-    case "insertion": return [...new Set(quizData.map(m=>m.insertion))];
-    case "action": return [...new Set(quizData.map(m=>m.action))];
-    case "nerve": return [...new Set(quizData.map(m=>m.nerve))];
-    case "perfusion": return [...new Set(quizData.map(m=>m.perfusion))];
-  }
+  return [...new Set(selectedDataset.map(m=>m[attr]))];
 }
 
 function shuffleArray(array){return array.sort(()=>Math.random()-0.5);}
