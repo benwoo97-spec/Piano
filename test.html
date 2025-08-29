@@ -36,7 +36,8 @@
   <h2>Quiz Finished!</h2>
   <p id="score"></p>
   <div id="wrongList"></div>
-  <button onclick="location.reload()">Restart</button>
+  <button onclick="location.reload()">🏠 Home</button>
+  <button onclick="retryWrong()">🔄 Retry Wrong Questions</button>
 </div>
 
 <script>
@@ -133,6 +134,18 @@ function finishQuiz(){
     wrongAnswers.forEach(m=>{ html+=`<li><b>${m.name}</b><br>Origin: ${m.origin}<br>Insertion: ${m.insertion}<br>Action: ${m.action}<br>Nerve: ${m.nerve}<br>Perfusion: ${m.perfusion}</li>` });
     html+="</ul>"; document.getElementById("wrongList").innerHTML=html;
   } else { document.getElementById("wrongList").innerHTML="<p>Perfect! ✅</p>"; }
+}
+
+function retryWrong(){
+  if(wrongAnswers.length===0){
+    alert("Perfect! 🎉");
+    return;
+  }
+  quizMuscles = [...wrongAnswers];  // 틀린 문제들만 다시 풀기
+  current=0; wrongAnswers=[];       // 초기화
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("card").classList.remove("hidden");
+  showQuestion();
 }
 </script>
 </body>
