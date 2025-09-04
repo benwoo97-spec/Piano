@@ -1,242 +1,225 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muscle Quiz</title>
-<style>
-  body { font-family: Arial; text-align:center; margin:20px; }
-  #card { border:2px solid #333; border-radius:10px; padding:20px; margin:20px auto; width:400px; }
-  .hidden { display:none; }
-  button { margin:10px; padding:10px 20px; border-radius:8px; cursor:pointer; }
-  #result { margin-top:20px; text-align:left; }
-  #timer { font-size:18px; margin:10px 0; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muscle Quiz</title>
+  <style>
+    body { font-family: Arial; text-align:center; margin:20px; }
+    #card { border:2px solid #333; border-radius:10px; padding:20px; margin:20px auto; width:400px; }
+    .hidden { display:none; }
+    button { margin:10px; padding:10px 20px; border-radius:8px; cursor:pointer; }
+    #result { margin-top:20px; text-align:left; }
+    #timer { font-size:18px; margin:10px 0; }
+  </style>
 </head>
 <body>
-<h1>Muscle Quiz</h1>
+  <h1>Muscle Quiz</h1>
 
-<!-- 홈 화면 -->
-<div id="home">
-  <button onclick="showThighMenu()">Thigh</button>
-  <button onclick="showLegMenu()">Leg</button>
-  <button onclick="showEntireMenu()">Entire Muscle</button>
-</div>
-
-<!-- Thigh 메뉴 -->
-<div id="thighMenu" class="hidden">
-  <button onclick="startQuiz('thigh', 10)">10 Questions</button>
-  <button onclick="startQuiz('thigh', allThigh.length)">All Questions</button>
-  <br>
-  <button onclick="goHome()">🏠 Back</button>
-</div>
-
-<!-- Leg 메뉴 -->
-<div id="legMenu" class="hidden">
-  <button onclick="startQuiz('leg', 10)">10 Questions</button>
-  <button onclick="startQuiz('leg', allLeg.length)">All Questions</button>
-  <br>
-  <button onclick="goHome()">🏠 Back</button>
-</div>
-
-<!-- Entire Muscle 메뉴 -->
-<div id="entireMenu" class="hidden">
-  <button onclick="startQuiz('entire', 10)">10 Questions</button>
-  <button onclick="startQuiz('entire', 20)">20 Questions</button>
-  <button onclick="startQuiz('entire', 30)">30 Questions</button>
-  <button onclick="startQuiz('entire', allMuscles.length)">All Questions</button>
-  <br>
-  <button onclick="goHome()">🏠 Back</button>
-</div>
-
-<!-- 카드 -->
-<div id="card" class="hidden">
-  <h2 id="muscleName"></h2>
-  <div id="answer" class="hidden"></div>
-  <div id="timer">30</div>
-  <button id="showAnswerBtn" onclick="showAnswer()">Show Answer</button>
-  <div>
-    <button id="correctBtn" class="hidden" onclick="markAnswer(true)">✓ Correct</button>
-    <button id="wrongBtn" class="hidden" onclick="markAnswer(false)">✗ Wrong</button>
+  <!-- 홈 화면 -->
+  <div id="home">
+    <button onclick="showThighMenu()">Thigh</button>
+    <button onclick="showLegMenu()">Leg</button>
+    <button onclick="showEntireMenu()">Entire Muscle</button>
   </div>
-  <button id="nextBtn" class="hidden" onclick="nextQuestion()">Next</button>
-</div>
 
-<!-- 결과 -->
-<div id="result" class="hidden">
-  <h2>Quiz Finished!</h2>
-  <p id="score"></p>
-  <div id="wrongList"></div>
-  <button onclick="location.reload()">🏠 Home</button>
-  <button onclick="retryWrong()">🔄 Retry Wrong Questions</button>
-</div>
+  <!-- Thigh 메뉴 -->
+  <div id="thighMenu" class="hidden">
+    <button onclick="startQuiz('thigh', 10)">10 Questions</button>
+    <button onclick="startQuiz('thigh', allThigh.length)">All Questions</button>
+    <br>
+    <button onclick="goHome()">🏠 Back</button>
+  </div>
+
+  <!-- Leg 메뉴 -->
+  <div id="legMenu" class="hidden">
+    <button onclick="startQuiz('leg', 10)">10 Questions</button>
+    <button onclick="startQuiz('leg', allLeg.length)">All Questions</button>
+    <br>
+    <button onclick="goHome()">🏠 Back</button>
+  </div>
+
+  <!-- Entire Muscle 메뉴 -->
+  <div id="entireMenu" class="hidden">
+    <button onclick="startQuiz('entire', 10)">10 Questions</button>
+    <button onclick="startQuiz('entire', 20)">20 Questions</button>
+    <button onclick="startQuiz('entire', 30)">30 Questions</button>
+    <button onclick="startQuiz('entire', allMuscles.length)">All Questions</button>
+    <br>
+    <button onclick="goHome()">🏠 Back</button>
+  </div>
+
+  <!-- 카드 -->
+  <div id="card" class="hidden">
+    <h2 id="muscleName"></h2>
+    <div id="answer" class="hidden"></div>
+    <div id="timer">30</div>
+    <button id="showAnswerBtn" onclick="showAnswer()">Show Answer</button>
+    <div>
+      <button id="correctBtn" class="hidden" onclick="markAnswer(true)">✓ Correct</button>
+      <button id="wrongBtn" class="hidden" onclick="markAnswer(false)">✗ Wrong</button>
+    </div>
+    <button id="nextBtn" class="hidden" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result" class="hidden">
+    <h2>Quiz Finished!</h2>
+    <p id="score"></p>
+    <div id="wrongList"></div>
+    <button onclick="location.reload()">🏠 Home</button>
+    <button onclick="retryWrong()">🔄 Retry Wrong Questions</button>
+  </div>
 
 <script>
-  // Thigh 근육
-  const allThigh = [
-    { name:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract", action:"Hip ER, EXT", nerve:"VR L5-S2 Inferior gluteal n.", perfusion:"Superior & Inferior gluteal aa/vv" },
-    { name:"Gluteus Medius", origin:"Anterior & Posterior gluteal lines", insertion:"Greater trochanter", action:"Hip IR, ABD, stabilization", nerve:"VR L4-S1 Superior gluteal n.", perfusion:"Superior gluteal aa/vv" },
-    { name:"Gluteus Minimus", origin:"Anterior & Inferior gluteal lines", insertion:"Greater trochanter", action:"Hip IR, ABD, stabilization", nerve:"VR L4-S1 Superior gluteal n.", perfusion:"Superior gluteal aa/vv" },
-    { name:"Piriformis", origin:"Anterior sacrum, sacrotuberous ligament", insertion:"Greater trochanter", action:"Hip ER", nerve:"VR S1-S2 n. to piriformis", perfusion:"Superior & Inferior gluteal aa/vv" },
-    { name:"Superior Gemellus", origin:"Ischial Spine", insertion:"Greater trochanter via obturator internus tendon", action:"Hip ER", nerve:"VR L5-S2 n. to superior gemellus", perfusion:"Inferior gluteal aa/vv" },
-    { name:"Obturator Internus", origin:"Ischiopubic ramus, obturator membrane", insertion:"Greater trochanter", action:"Hip ER, ABD", nerve:"VR L5-S2 n. to obturator internus", perfusion:"Inferior gluteal aa/vv" },
-    { name:"Inferior Gemellus", origin:"Ischial tuberosity", insertion:"Greater trochanter via obturator internus tendon", action:"Hip ER", nerve:"VR L4-S1 n. to inferior gemellus", perfusion:"Inferior gluteal aa/vv" },
-    { name:"Quadratus Femoris", origin:"Ischial tuberosity", insertion:"Intertrochanteric crest", action:"Hip ER", nerve:"VR L4-S1 n. to quadratus femoris", perfusion:"Inferior gluteal aa/vv" },
-    { name:"Iliopsoas", origin:"Iliac fossa, Ala sacrum, TP, IVD, Bodies of T12-L5", insertion:"Lesser trochanter", action:"Hip FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Sartorius", origin:"ASIS", insertion:"Pes Anserine", action:"Hip FLX, ER, ABD + Leg IR, FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Rectus Femoris", origin:"AIIS", insertion:"Base of patella, tibial tuberosity", action:"Hip FLX, Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Vastus Medialis", origin:"Intertrochanteric line, linea aspera, medial intermuscular septum", insertion:"Medial patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Vastus Lateralis", origin:"Intertrochanteric line, linea aspera, lateral intermuscular septum, greater trochanter, gluteal tuberosity", insertion:"Lateral patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Vastus Intermedius", origin:"upper shaft of femur, lower lateral intermuscular septum", insertion:"Upper patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" },
-    { name:"Articularis Genu", origin:"Distal femur", insertion:"Suprapatellar bursa", action:"Pulls suprapatellar tendon superiorly", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv" }
-  ];
+// ======================= Thigh 근육 =========================
+const allThigh = [
+  { name:"Gluteus Maximus", origin:"Ilium, sacrum, coccyx, sacrotuberous ligament", insertion:"Gluteal tuberosity, iliotibial tract (IT Band)", action:"Hip ER, EXT", nerve:"VR L5-S2 Inferior gluteal n.", perfusion:"Superior + Inferior gluteal aa/vv." },
+  { name:"Gluteus Medius", origin:"Anterior and Posterior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"VR L4-S1 Superior gluteal n.", perfusion:"Superior gluteal aa/vv." },
+  { name:"Gluteus Minimus", origin:"Anterior and Inferior gluteal lines (Ilium)", insertion:"Greater trochanter", action:"Hip IR, ABD + Hip stabilization", nerve:"VR L4-S1 Superior gluteal n.", perfusion:"Superior gluteal aa/vv." },
+  { name:"Piriformis", origin:"Anterior surface of sacrum, Sacrotuberous ligament", insertion:"Greater trochanter (upper end)", action:"Hip ER", nerve:"VR S1-S2 n. to piriformis mm.", perfusion:"Superior + Inferior gluteal aa/vv." },
+  { name:"Superior Gemellus", origin:"Ischial Spine", insertion:"Greater trochanter (via obturator internus tendon)", action:"Hip ER", nerve:"VR L5-S2 n. to superior gemellus and obturator internus mm.", perfusion:"Inferior Gluteal aa/vv" },
+  { name:"Obturator Internus", origin:"Ischiopubic ramus, Obturator membrane", insertion:"Greater trochanter", action:"Hip ER, ABD", nerve:"VR L5-S2 n. to superior gemellus and obturator internus mm.", perfusion:"Inferior Gluteal aa/vv" },
+  { name:"Inferior Gemellus", origin:"Ischial tuberosity", insertion:"Greater trochanter (via obturator internus tendon)", action:"Hip ER", nerve:"VR L4-S1 n. to inferior gemellus and Quadratus Femoris mm.", perfusion:"Inferior Gluteal aa/vv" },
+  { name:"Quadratus Femoris", origin:"Ischial tuberosity", insertion:"Intertrochanteric crest", action:"Hip ER", nerve:"VR L4-S1 n. to inferior gemellus and Quadratus Femoris mm.", perfusion:"Inferior Gluteal aa/vv" },
+  { name:"Psoas Major", origin:"TP, IVD, Bodies of T12-L5", insertion:"Lesser Trochanter", action:"Hip FLX, Trunk FLX", nerve:"VR T12 Subcostal n. + L1-L3 spinal n.", perfusion:"Now: Abdominal Aorta / Later: 12th Anterior Intercostal aa/vv, #1-3 Lumbar aa/vv." },
+  { name:"Psoas Minor", origin:"IVD, bodies of T12-L1", insertion:"Lesser Trochanter", action:"Aids in Trunk FLX", nerve:"VR T12 Subcostal n. + L1 spinal n.", perfusion:"Now: Abdominal Aorta / Later: 12th Anterior Intercostal aa/vv, #1-3 Lumbar aa/vv." },
+  { name:"Iliacus", origin:"Iliac fossa, Ala of sacrum", insertion:"Lesser Trochanter", action:"Hip FLX", nerve:"VR L2-L4 femoral n.", perfusion:"External Iliac aa/vv." },
+  { name:"Iliopsoas", origin:"Iliac fossa, Ala of sacrum, TP, IVD, and bodies of T12-L5", insertion:"Lesser Trochanter", action:"Hip FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Sartorius", origin:"ASIS", insertion:"Pes Anserine (medial tibia)", action:"Hip FLX, ER, ABD + Leg IR, FLX", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Rectus Femoris", origin:"AIIS, posterior-superior rim of acetabulum", insertion:"Base of patella, tibial tuberosity", action:"Hip FLX, Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Vastus Medialis", origin:"Intertrochanteric line, linea aspera, medial intermuscular septum", insertion:"Medial side of patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Vastus Lateralis", origin:"Intertrochanteric line, linea aspera, lateral intermuscular septum, greater trochanter, gluteal tuberosity", insertion:"Lateral side of patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Vastus Intermedius", origin:"Upper shaft of femur, lower lateral intermuscular septum", insertion:"Upper border of patella, tibial tuberosity", action:"Leg EXT", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Articularis Genu", origin:"Distal Femur (Anterior portion)", insertion:"Suprapatellar bursa", action:"Pulls suprapatellar tendon superiorly", nerve:"VR L2-L4 femoral n.", perfusion:"Femoral aa/vv." },
+  { name:"Pectineus", origin:"Pectineal line of pubis bone", insertion:"Pectineal line of femur bone", action:"Hip FLX, ADD", nerve:"VR L2-L4 femoral n. + VR L2-L4 obturator n.", perfusion:"Femoral aa/vv. + Obturator aa/vv." },
+  { name:"Adductor Magnus", origin:"Ischial tuberosity, Ischiopubic ramus", insertion:"Adductor tubercle, Linea Aspera, Medial supracondylar line of femur (ATLAS)", action:"Hip ADD, EXT, FLX", nerve:"VR L2-L4 Obturator n. + VR L4-S3 tibial division of sciatic n.", perfusion:"Obturator aa/vv. + Profundus femoris aa/vv." },
+  { name:"Adductor Longus", origin:"Body of Pubis", insertion:"Linea Aspera", action:"Hip ADD, FLX", nerve:"VR L2-L4 Obturator n.", perfusion:"Obturator aa/vv." },
+  { name:"Adductor Brevis", origin:"Body of Pubis", insertion:"Pectineal line of femur, linea aspera", action:"Hip ADD, FLX", nerve:"VR L2-L4 Obturator n.", perfusion:"Obturator aa/vv." },
+  { name:"Gracilis", origin:"Body of Pubis", insertion:"Pes Anserine (medial tibia)", action:"Hip ADD, FLX + Leg FLX, IR", nerve:"VR L2-L4 Obturator n.", perfusion:"Obturator aa/vv." },
+  { name:"Obturator Externus", origin:"Margin of obturator foramen and obturator membrane", insertion:"Intertrochanteric fossa of femur", action:"Hip ER", nerve:"VR L2-L4 Obturator n.", perfusion:"Obturator aa/vv." },
+  { name:"Tensor Fascia Latae (TFL)", origin:"ASIS iliac spine", insertion:"Iliotibial tract (IT Band)", action:"Hip FLX, IR, ABD + stabilization", nerve:"VR L4-S1 Superior gluteal n.", perfusion:"Superior gluteal aa/vv." },
+  { name:"Semitendinosus", origin:"Ischial tuberosity", insertion:"Pes Anserine (medial tibia)", action:"Hip EXT + Leg FLX, IR", nerve:"VR L4-S3 Tibial division of Sciatic n.", perfusion:"Profundus femoris aa/vv." },
+  { name:"Semimembranosus", origin:"Ischial tuberosity", insertion:"Medial condyle of tibia", action:"Hip EXT + Leg FLX, IR", nerve:"VR L4-S3 Tibial division of Sciatic n.", perfusion:"Profundus femoris aa/vv." },
+  { name:"Biceps Femoris (Long head)", origin:"Ischial tuberosity", insertion:"Head of fibula", action:"Hip EXT + Leg FLX, ER", nerve:"VR L4-S3 Tibial division of Sciatic n.", perfusion:"Profundus femoris aa/vv." },
+  { name:"Biceps Femoris (Short Head)", origin:"Linea Aspera, Lateral Supracondylar line of Femur", insertion:"Head of fibula", action:"Leg FLX , ER", nerve:"VR L4-S3 Common Fibular division of Sciatic n.", perfusion:"Profundus femoris aa/vv." }
+];
 
-  // Leg 근육
-  const allLeg = [
-    { name:"Anterior Tibialis", origin:"Lateral Tibial Condyle, IOM", insertion:"Base of 1st MT , medial cuneiform", action:"Foot DF + INV", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
-    { name:"Extensor Digitorum Longus (EDL)", origin:"Lateral Tibial Condyle, Fibula, IOM", insertion:"Extensor expansion hood of digits 2-5", action:"Foot DF, EXT digits 2-5 @ MTP, PIP, DIP", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
-    { name:"Extensor Hallucis Longus (EHL)", origin:"Fibula, IOM", insertion:"Extensor expansion hood of Hallux", action:"Foot DF, EXT Hallux @ MTP, IP", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
-    { name:"Fibularis Tertius", origin:"Fibula, IOM", insertion:"base of 5th MT", action:"Foot DF, Foot EVE", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
-    { name:"Fibularis Longus", origin:"head of fibula, Lateral Tibial Condyle", insertion:"Base of 1st MT , medial cuneiform", action:"Foot PF+ EVE", nerve:"VR L4-S3 Superficial Fibular n.", perfusion:"Fibular aa/vv" },
-    { name:"Fibularis Brevis", origin:"Fibula, Intermuscular septa", insertion:"base of 5th MT", action:"Foot PF+EVE", nerve:"VR L4-S3 Superficial Fibular n.", perfusion:"Fibular aa/vv" },
-    { name:"Gastrocnemius (Medial and Lateral Heads)", origin:"Medial and Lateral Femoral Condyles (respectively)", insertion:"(Posterior) calcaneus via achilles tendon", action:"Leg FLX + Foot PF", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Soleus", origin:"head of fibula + Soleal line of Tibia", insertion:"(Posterior) calcaneus via achilles tendon", action:"PF foot", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Plantaris", origin:"Lateral Supracondylar line of Femur", insertion:"(Posterior) calcaneus via achilles tendon", action:"Leg FLX + Foot PF", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Posterior Tibialis", origin:"(upper) Tibia + Fibula, IOM", insertion:"sustentaculum tali, navicular tuberosity, all 3 cuneiforms, Cuboid, bases of 2-4 MT", action:"PF + Foot INV", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Flexor Digitorum Longus (FDL)", origin:"Posterior Tibia + IOM", insertion:"Distal Phalanx of digits 2-5", action:"PF foot + FLX digits 2-5 @ MTP, PIP, DIP", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Flexor Hallucis Longus (FHL)", origin:"Fibula, IOM, Intermuscular septa", insertion:"Distal Phalanx of Hallux", action:"PF foot + FLX Hallux @ MTP, IP", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
-    { name:"Popliteus", origin:"lateral femoral condyle, popliteal ligament", insertion:"(upper posterior side) Tibia", action:"Leg FLX + IR (Unlocks the knee)", nerve:"VR L4-S3 Tibial n.", perfusion:"Popliteal aa/vv" }
-  ];
+// ======================= Leg 근육 =========================
+const allLeg = [
+  { name:"Anterior Tibialis", origin:"Lateral Tibial Condyle, IOM", insertion:"Base of 1st MT , medial cuneiform", action:"Foot DF + INV", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
+  { name:"Extensor Digitorum Longus (EDL)", origin:"Lateral Tibial Condyle, Fibula, IOM", insertion:"Extensor expansion hood of digits 2-5", action:"Foot DF, EXT digits 2-5 @ MTP, PIP, DIP", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
+  { name:"Extensor Hallucis Longus (EHL)", origin:"Fibula, IOM", insertion:"Extensor expansion hood of Hallux", action:"Foot DF, EXT Hallux @ MTP, IP", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
+  { name:"Fibularis Tertius", origin:"Fibula, IOM", insertion:"base of 5th MT", action:"Foot DF, Foot EVE", nerve:"VR L4-S3 Deep Fibular n.", perfusion:"Anterior Tibial aa/vv" },
+  { name:"Fibularis Longus", origin:"head of fibula, Lateral Tibial Condyle", insertion:"Base of 1st MT , medial cuneiform", action:"Foot PF+ EVE", nerve:"VR L4-S3 Superficial Fibular n.", perfusion:"Fibular aa/vv" },
+  { name:"Fibularis Brevis", origin:"Fibula, Intermuscular septa", insertion:"base of 5th MT", action:"Foot PF+EVE", nerve:"VR L4-S3 Superficial Fibular n.", perfusion:"Fibular aa/vv" },
+  { name:"Gastrocnemius (Medial and Lateral Heads)", origin:"Medial and Lateral Femoral Condyles", insertion:"(Posterior) calcaneus via achilles tendon", action:"Leg FLX + Foot PF", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Soleus", origin:"head of fibula + Soleal line of Tibia", insertion:"(Posterior) calcaneus via achilles tendon", action:"PF foot", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Plantaris", origin:"Lateral Supracondylar line of Femur", insertion:"(Posterior) calcaneus via achilles tendon", action:"Leg FLX + Foot PF", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Posterior Tibialis", origin:"Tibia + Fibula, IOM", insertion:"sustentaculum tali, navicular tuberosity, all 3 cuneiforms, Cuboid, bases of 2-4 MT", action:"PF + Foot INV", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Flexor Digitorum Longus (FDL)", origin:"Posterior Tibia + IOM", insertion:"Distal Phalanx of digits 2-5", action:"PF foot + FLX digits 2-5", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Flexor Hallucis Longus (FHL)", origin:"Fibula, IOM, Intermuscular septa", insertion:"Distal Phalanx of Hallux", action:"PF foot + FLX Hallux", nerve:"VR L4-S3 Tibial n.", perfusion:"Posterior tibial aa/vv" },
+  { name:"Popliteus", origin:"lateral femoral condyle, popliteal ligament", insertion:"(upper posterior side) Tibia", action:"Leg FLX + IR (Unlocks knee)", nerve:"VR L4-S3 Tibial n.", perfusion:"Popliteal aa/vv" }
+];
 
-  // 전체 근육 (Thigh + Leg)
-  const allMuscles = [...allThigh, ...allLeg];
+// ======================= 합친 배열 =========================
+const allMuscles = [...allThigh, ...allLeg];
 
-  let quizMuscles = [];
-  let current = 0;
-  let timer = null;
-  let timeLeft = 30;
-  let wrongAnswers = [];
+// ======================= Quiz 기능 =========================
+let quizMuscles = [];
+let current = 0;
+let timer = null;
+let timeLeft = 30;
+let wrongAnswers = [];
 
-  function showThighMenu(){
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("thighMenu").classList.remove("hidden");
-  }
+function showThighMenu(){ document.getElementById("home").classList.add("hidden"); document.getElementById("thighMenu").classList.remove("hidden"); }
+function showLegMenu(){ document.getElementById("home").classList.add("hidden"); document.getElementById("legMenu").classList.remove("hidden"); }
+function showEntireMenu(){ document.getElementById("home").classList.add("hidden"); document.getElementById("entireMenu").classList.remove("hidden"); }
+function goHome(){ document.getElementById("thighMenu").classList.add("hidden"); document.getElementById("legMenu").classList.add("hidden"); document.getElementById("entireMenu").classList.add("hidden"); document.getElementById("home").classList.remove("hidden"); }
 
-  function showLegMenu(){
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("legMenu").classList.remove("hidden");
-  }
+function startQuiz(type, num){
+  if(type==='thigh') quizMuscles = [...allThigh];
+  else if(type==='leg') quizMuscles = [...allLeg];
+  else quizMuscles = [...allMuscles];
+  shuffle(quizMuscles);
+  quizMuscles = quizMuscles.slice(0,num);
+  current = 0; wrongAnswers = [];
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("thighMenu").classList.add("hidden");
+  document.getElementById("legMenu").classList.add("hidden");
+  document.getElementById("entireMenu").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("card").classList.remove("hidden");
+  showQuestion();
+}
 
-  function showEntireMenu(){
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("entireMenu").classList.remove("hidden");
-  }
+function showQuestion(){
+  let q = quizMuscles[current];
+  document.getElementById("muscleName").innerText = q.name;
+  document.getElementById("answer").innerHTML = `
+    <p><b>Origin:</b> ${q.origin}</p>
+    <p><b>Insertion:</b> ${q.insertion}</p>
+    <p><b>Action:</b> ${q.action}</p>
+    <p><b>Nerve:</b> ${q.nerve}</p>
+    <p><b>Perfusion:</b> ${q.perfusion}</p>
+  `;
+  document.getElementById("answer").classList.add("hidden");
+  document.getElementById("showAnswerBtn").classList.remove("hidden");
+  document.getElementById("correctBtn").classList.add("hidden");
+  document.getElementById("wrongBtn").classList.add("hidden");
+  document.getElementById("nextBtn").classList.add("hidden");
+  resetTimer();
+}
 
-  function goHome(){
-    document.getElementById("thighMenu").classList.add("hidden");
-    document.getElementById("legMenu").classList.add("hidden");
-    document.getElementById("entireMenu").classList.add("hidden");
-    document.getElementById("home").classList.remove("hidden");
-  }
+function showAnswer(){
+  document.getElementById("answer").classList.remove("hidden");
+  document.getElementById("showAnswerBtn").classList.add("hidden");
+  document.getElementById("correctBtn").classList.remove("hidden");
+  document.getElementById("wrongBtn").classList.remove("hidden");
+}
 
-  function startQuiz(type, num){
-    if(type==='thigh') quizMuscles = [...allThigh];
-    else if(type==='leg') quizMuscles = [...allLeg];
-    else if(type==='entire') quizMuscles = [...allMuscles];
+function markAnswer(correct){
+  if(!correct) wrongAnswers.push(quizMuscles[current]);
+  document.getElementById("correctBtn").classList.add("hidden");
+  document.getElementById("wrongBtn").classList.add("hidden");
+  document.getElementById("nextBtn").classList.remove("hidden");
+  clearInterval(timer);
+}
 
-    quizMuscles = quizMuscles.sort(()=>0.5-Math.random()).slice(0,num);
-    current=0;
-    wrongAnswers=[];
-    document.getElementById("result").classList.add("hidden");
-    document.getElementById("thighMenu").classList.add("hidden");
-    document.getElementById("legMenu").classList.add("hidden");
-    document.getElementById("entireMenu").classList.add("hidden");
-    document.getElementById("card").classList.remove("hidden");
-    showQuestion();
-  }
+function nextQuestion(){
+  current++;
+  if(current<quizMuscles.length){ showQuestion(); }
+  else { endQuiz(); }
+}
 
-  function showQuestion(){
-    const m = quizMuscles[current];
-    document.getElementById("muscleName").innerText = m.name;
-    document.getElementById("answer").classList.add("hidden");
-    document.getElementById("showAnswerBtn").classList.remove("hidden");
-    document.getElementById("correctBtn").classList.add("hidden");
-    document.getElementById("wrongBtn").classList.add("hidden");
-    document.getElementById("nextBtn").classList.add("hidden");
+function endQuiz(){
+  document.getElementById("card").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("score").innerText = `Score: ${quizMuscles.length - wrongAnswers.length} / ${quizMuscles.length}`;
+  let list = "<h3>Wrong Answers:</h3>";
+  wrongAnswers.forEach(m=>{ list+=`<p>${m.name}</p>`; });
+  document.getElementById("wrongList").innerHTML = list;
+}
 
-    if(timer){ clearInterval(timer); timer=null; }
-    timeLeft=30;
-    document.getElementById("timer").innerText=timeLeft;
-    timer=setInterval(()=>{
-      if(timeLeft<=0){ clearInterval(timer); }
-      else { timeLeft--; document.getElementById("timer").innerText=timeLeft; }
-    },1000);
-  }
+function retryWrong(){
+  if(wrongAnswers.length===0){ alert("No wrong answers!"); return; }
+  quizMuscles = [...wrongAnswers]; wrongAnswers=[]; current=0;
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("card").classList.remove("hidden");
+  showQuestion();
+}
 
-  function showAnswer(){
-    if(timer){ clearInterval(timer); timer=null; }
-    const m=quizMuscles[current];
-    document.getElementById("answer").innerHTML=
-      `<p><b>Origin:</b> ${m.origin}</p>
-       <p><b>Insertion:</b> ${m.insertion}</p>
-       <p><b>Action:</b> ${m.action}</p>
-       <p><b>Nerve:</b> ${m.nerve}</p>
-       <p><b>Perfusion:</b> ${m.perfusion}</p>`;
-    document.getElementById("answer").classList.remove("hidden");
-    document.getElementById("showAnswerBtn").classList.add("hidden");
-    document.getElementById("correctBtn").classList.remove("hidden");
-    document.getElementById("wrongBtn").classList.remove("hidden");
-  }
+function resetTimer(){
+  clearInterval(timer);
+  timeLeft=30;
+  document.getElementById("timer").innerText=timeLeft;
+  timer=setInterval(()=>{
+    timeLeft--; document.getElementById("timer").innerText=timeLeft;
+    if(timeLeft<=0){ clearInterval(timer); showAnswer(); markAnswer(false); }
+  },1000);
+}
 
-  function markAnswer(correct){
-    if(timer){ clearInterval(timer); timer=null; }
-    if(!correct) wrongAnswers.push(quizMuscles[current]);
-    document.getElementById("correctBtn").classList.add("hidden");
-    document.getElementById("wrongBtn").classList.add("hidden");
-    document.getElementById("nextBtn").classList.remove("hidden");
-  }
-
-  function nextQuestion(){
-    current++;
-    if(current>=quizMuscles.length){ finishQuiz(); }
-    else { showQuestion(); }
-  }
-
-  function finishQuiz(){
-    if(timer){ clearInterval(timer); timer=null; }
-    document.getElementById("card").classList.add("hidden");
-    document.getElementById("result").classList.remove("hidden");
-    document.getElementById("score").innerText=
-      `You got ${quizMuscles.length - wrongAnswers.length} / ${quizMuscles.length} correct.`;
-    if(wrongAnswers.length>0){
-      let html="<h3>Wrong Answers:</h3><ul>";
-      wrongAnswers.forEach(m=>{
-        html+=`<li><b>${m.name}</b><br>
-                 Origin: ${m.origin}<br>
-                 Insertion: ${m.insertion}<br>
-                 Action: ${m.action}<br>
-                 Nerve: ${m.nerve}<br>
-                 Perfusion: ${m.perfusion}</li>`;
-      });
-      html+="</ul>";
-      document.getElementById("wrongList").innerHTML=html;
-    } else {
-      document.getElementById("wrongList").innerHTML="<p>Perfect! ✅</p>";
-    }
-  }
-
-  function retryWrong(){
-    if(wrongAnswers.length===0){
-      alert("틀린 문제가 없습니다! 🎉");
-      return;
-    }
-    quizMuscles = [...wrongAnswers];
-    current=0;
-    wrongAnswers=[];
-    document.getElementById("result").classList.add("hidden");
-    document.getElementById("card").classList.remove("hidden");
-    showQuestion();
-  }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
 </script>
 </body>
 </html>
