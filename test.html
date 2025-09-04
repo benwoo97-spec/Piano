@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Muscle Quiz</title>
   <style>
-    body { font-family: Arial; text-align:center; margin:20px; }
-    #card { border:2px solid #333; border-radius:10px; padding:20px; margin:20px auto; width:400px; }
+    body { font-family: Arial; text-align:center; margin:20px; background:#f0f4f9; }
+    #card { border:2px solid #333; border-radius:10px; padding:20px; margin:20px auto; width:400px; background:white; }
     .hidden { display:none; }
     button { margin:10px; padding:10px 20px; border-radius:8px; cursor:pointer; }
     #result { margin-top:20px; text-align:left; }
-    #timer { font-size:18px; margin:10px 0; }
+    #timer { font-size:18px; margin:10px 0; color:#d9534f; }
   </style>
 </head>
 <body>
@@ -176,6 +176,7 @@ function showAnswer(){
   document.getElementById("showAnswerBtn").classList.add("hidden");
   document.getElementById("correctBtn").classList.remove("hidden");
   document.getElementById("wrongBtn").classList.remove("hidden");
+  clearInterval(timer); // Show Answer 누르면 타이머 멈춤
 }
 
 function markAnswer(correct){
@@ -183,7 +184,6 @@ function markAnswer(correct){
   document.getElementById("correctBtn").classList.add("hidden");
   document.getElementById("wrongBtn").classList.add("hidden");
   document.getElementById("nextBtn").classList.remove("hidden");
-  clearInterval(timer);
 }
 
 function nextQuestion(){
@@ -214,8 +214,9 @@ function resetTimer(){
   timeLeft=30;
   document.getElementById("timer").innerText=timeLeft;
   timer=setInterval(()=>{
-    timeLeft--; document.getElementById("timer").innerText=timeLeft;
-    if(timeLeft<=0){ clearInterval(timer); showAnswer(); markAnswer(false); }
+    timeLeft--;
+    if(timeLeft>=0) document.getElementById("timer").innerText=timeLeft;
+    if(timeLeft<=0) clearInterval(timer); // 0이 되면 멈춤
   },1000);
 }
 
